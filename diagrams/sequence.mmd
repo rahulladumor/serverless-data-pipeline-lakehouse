@@ -1,0 +1,29 @@
+```mermaid
+sequenceDiagram
+    participant Source as Data Source
+    participant Glue as Glue ETL
+    participant S3 as S3 Lakehouse
+    participant Catalog as Data Catalog
+    participant LF as Lake Formation
+    participant Athena as Athena
+    participant User as Analyst
+
+    Source->>Glue: Trigger ETL job
+    Glue->>S3: Read raw data (Bronze)
+    Glue->>Glue: Transform & validate
+    Glue->>S3: Write cleaned data (Silver)
+    Glue->>Catalog: Update schema
+    
+    Note over Glue,S3: Delta Lake ACID transaction
+    
+    Glue->>S3: Write curated data (Gold)
+    Glue->>Catalog: Register table
+    Catalog->>LF: Apply permissions
+
+    User->>Athena: Submit query
+    Athena->>LF: Check permissions
+    LF-->>Athena: Authorized
+    Athena->>S3: Scan Delta table
+    S3-->>Athena: Return data
+    Athena-->>User: Query results
+```

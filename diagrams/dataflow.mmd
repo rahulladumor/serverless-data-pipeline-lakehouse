@@ -1,0 +1,45 @@
+```mermaid
+graph LR
+    subgraph Ingest["Data Ingestion"]
+        Batch[Batch Files]
+        Stream[Streaming Data]
+        API[API Data]
+    end
+
+    subgraph Bronze["Bronze Layer"]
+        Raw[Raw Data]
+        Schema[Schema Detection]
+    end
+
+    subgraph Silver["Silver Layer"]
+        Clean[Cleaned Data]
+        Validate[Validated]
+        Dedupe[Deduplicated]
+    end
+
+    subgraph Gold["Gold Layer"]
+        Curated[Curated Tables]
+        Aggregates[Aggregates]
+        Features[ML Features]
+    end
+
+    subgraph Consume["Consumption"]
+        BI[BI Dashboards]
+        ML[ML Training]
+        Apps[Applications]
+    end
+
+    Batch --> Raw
+    Stream --> Raw
+    API --> Raw
+    Raw --> Schema
+    Schema --> Clean
+    Clean --> Validate
+    Validate --> Dedupe
+    Dedupe --> Curated
+    Curated --> Aggregates
+    Curated --> Features
+    Aggregates --> BI
+    Features --> ML
+    Curated --> Apps
+```

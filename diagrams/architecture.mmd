@@ -1,0 +1,57 @@
+```mermaid
+graph TD
+    subgraph Sources["Data Sources"]
+        S3Raw[S3 Raw Zone]
+        Kinesis[Kinesis Streams]
+        APIs[External APIs]
+    end
+
+    subgraph Ingestion["Ingestion Layer"]
+        Glue[AWS Glue ETL]
+        EMR[EMR Serverless]
+        Lambda[Lambda Ingest]
+    end
+
+    subgraph Storage["Lakehouse Storage"]
+        Bronze[Bronze Layer - Raw]
+        Silver[Silver Layer - Cleaned]
+        Gold[Gold Layer - Curated]
+    end
+
+    subgraph Catalog["Data Catalog"]
+        GlueCatalog[Glue Data Catalog]
+        LakeFormation[Lake Formation]
+    end
+
+    subgraph Query["Query Layer"]
+        Athena[Amazon Athena]
+        Redshift[Redshift Spectrum]
+        QuickSight[QuickSight]
+    end
+
+    subgraph Governance["Governance"]
+        Lineage[Data Lineage]
+        Quality[Data Quality]
+        Access[Access Control]
+    end
+
+    S3Raw --> Glue
+    Kinesis --> Lambda
+    APIs --> Lambda
+    Glue --> Bronze
+    Lambda --> Bronze
+    Bronze --> EMR
+    EMR --> Silver
+    Silver --> Glue
+    Glue --> Gold
+    Bronze --> GlueCatalog
+    Silver --> GlueCatalog
+    Gold --> GlueCatalog
+    GlueCatalog --> LakeFormation
+    LakeFormation --> Athena
+    LakeFormation --> Redshift
+    Athena --> QuickSight
+    LakeFormation --> Access
+    GlueCatalog --> Lineage
+    EMR --> Quality
+```
