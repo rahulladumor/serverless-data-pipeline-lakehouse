@@ -102,4 +102,4 @@ Common issues and resolutions for the **Serverless Data Lakehouse**.
 - Implement S3 lifecycle policies
 - Use Glue job bookmarks for incremental processing
 
-> For architecture details, see `ARCHITECTURE.md`.
+> For architecture details, see the project README.
