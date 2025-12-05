@@ -1,110 +1,70 @@
-# Runbook
+# Operations Runbook
 
-Operational guide for deploying, operating, and maintaining the **Serverless Data Lakehouse**.
+## Overview
+This runbook provides operational procedures for managing and maintaining this infrastructure.
 
-## 1. Deployment
+## Prerequisites
+- AWS CLI configured
+- Terraform/CDK/Pulumi installed
+- Appropriate IAM permissions
 
-### Prerequisites
+## Common Operations
 
-- AWS CLI configured with appropriate credentials
-- Node.js 18+ and npm installed
-- AWS CDK CLI installed (`npm install -g aws-cdk`)
-
-### Deploy Steps
-
+### Deployment
 ```bash
-# Install dependencies
-npm install
+# Development
+./scripts/deploy.sh dev
 
-# Bootstrap CDK (first time only)
-cdk bootstrap
-
-# Deploy to dev
-cdk deploy --context environment=dev
-
-# Deploy to production
-cdk deploy --context environment=prod
+# Production
+./scripts/deploy.sh prod
 ```
 
-## 2. Data Ingestion
+### Monitoring
+- CloudWatch Dashboard: Check AWS Console
+- Alerts: Configured via SNS
+- Logs: CloudWatch Logs
 
-### Add New Data Source
+### Troubleshooting
 
-1. Create Glue crawler for source
-2. Define schema in Data Catalog
-3. Create Glue ETL job for transformation
-4. Schedule job via EventBridge
-5. Verify data in Athena
+#### Issue: Deployment Fails
+**Symptoms**: Terraform/CDK apply fails
+**Resolution**:
+1. Check AWS credentials
+2. Verify IAM permissions
+3. Review error logs
+4. Check resource quotas
 
-### Supported Formats
+#### Issue: High Costs
+**Symptoms**: Unexpected AWS charges
+**Resolution**:
+1. Review Cost Explorer
+2. Check for unused resources
+3. Verify auto-scaling policies
+4. Review instance types
 
-- CSV, JSON, Parquet, ORC
-- Delta Lake (ACID transactions)
-- Avro (schema evolution)
+### Maintenance Windows
+- Preferred: Sunday 02:00-06:00 UTC
+- Avoid: Business hours (09:00-17:00 local time)
 
-## 3. Query Operations
+### Escalation
+1. Team Lead
+2. DevOps Manager
+3. On-call Engineer
 
-### Athena Queries
+## Emergency Procedures
 
-```sql
--- Query Delta Lake table
-SELECT * FROM lakehouse.sales
-WHERE year = 2024 AND month = 1
-LIMIT 100;
-
--- Time travel query
-SELECT * FROM lakehouse.sales VERSION AS OF 10;
-```
-
-### Query Federation
-
-```sql
--- Cross-source query
-SELECT * FROM awsdatacatalog.lakehouse.sales s
-JOIN postgresql.public.customers c ON s.customer_id = c.id;
-```
-
-## 4. Monitoring
-
-### Key Metrics to Watch
-
-- **Glue jobs**: Duration, DPU usage, errors
-- **Athena**: Query duration, data scanned, costs
-- **S3**: Storage growth, request rates
-- **EMR Serverless**: Job duration, resource usage
-
-### Dashboards
-
-Pre-configured dashboards for:
-
-- ETL pipeline health
-- Query performance
-- Storage metrics
-- Cost tracking
-
-## 5. Maintenance
-
-### Regular Tasks
-
-- Run Delta Lake OPTIMIZE weekly
-- VACUUM old versions monthly
-- Review partition strategy quarterly
-- Update Glue job scripts as needed
-
-### Delta Lake Maintenance
-
-```sql
--- Optimize for better query performance
-OPTIMIZE lakehouse.sales;
-
--- Remove old versions
-VACUUM lakehouse.sales RETAIN 168 HOURS;
-```
-
-### Teardown
-
+### Rollback
 ```bash
-cdk destroy --context environment=dev
+# Terraform
+terraform apply -var-file=previous.tfvars
+
+# CDK
+cdk deploy --previous-version
+
+# Pulumi
+pulumi stack select previous
+pulumi up
 ```
 
-> For troubleshooting common issues, see `docs/troubleshooting.md`.
+### Disaster Recovery
+See [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
